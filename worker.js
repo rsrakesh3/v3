@@ -32,22 +32,8 @@ chrome.action.onClicked.addListener(() => {
 });
 
 const startup = () => chrome.storage.local.get({
-  mode: 'window'
+  mode: 'popup'
 }, prefs => {
-  chrome.contextMenus.create({
-    title: 'Open in Window',
-    id: 'window',
-    contexts: ['action'],
-    type: 'radio',
-    checked: prefs.mode === 'window'
-  });
-  chrome.contextMenus.create({
-    title: 'Open in Tab',
-    id: 'tab',
-    contexts: ['action'],
-    type: 'radio',
-    checked: prefs.mode === 'tab'
-  });
   chrome.contextMenus.create({
     title: 'Open in Popup',
     id: 'popup',
@@ -74,30 +60,36 @@ chrome.storage.onChanged.addListener(prefs => {
   }
 });
 
-/* FAQs & Feedback */
-{
-  const {management, runtime: {onInstalled, setUninstallURL, getManifest}, storage, tabs} = chrome;
-  if (navigator.webdriver !== true) {
-    const page = getManifest().homepage_url;
-    const {name, version} = getManifest();
-    onInstalled.addListener(({reason, previousVersion}) => {
-      management.getSelf(({installType}) => installType === 'normal' && storage.local.get({
-        'faqs': true,
-        'last-update': 0
-      }, prefs => {
-        if (reason === 'install' || (prefs.faqs && reason === 'update')) {
-          const doUpdate = (Date.now() - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
-          if (doUpdate && previousVersion !== version) {
-            tabs.query({active: true, currentWindow: true}, tbs => tabs.create({
-              url: page + '?version=' + version + (previousVersion ? '&p=' + previousVersion : '') + '&type=' + reason,
-              active: reason === 'install',
-              ...(tbs && tbs.length && {index: tbs[0].index + 1})
-            }));
-            storage.local.set({'last-update': Date.now()});
-          }
-        }
-      }));
+chrome.runtime.onMessage.addListener(
+  function (message, callback) {
+    if (message == "changeColor") {
+      chrome.tabs.executeScript({
+        code: 'document.body.style.backgroundColor="orange"'
+      });
+    }
+  });
+
+chrome.runtime.onMessage.addListener(
+  function (request, sender, sendResponse) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      if (request.Message === "hello") {
+        const product = request.product;
+        chrome.scripting.executeScript({
+          target: { tabId: tabs[0].id },
+          function: displayProduct,
+          args: [product],
+        });
+      }
+      return true;
     });
-    setUninstallURL(page + '?rd=feedback&name=' + encodeURIComponent(name) + '&version=' + version);
   }
+);
+
+function displayProduct(productNum) {
+  alert(productNum);
+  navigator.clipboard.writeText(productNum);
+  const list = document.getElementsByClassName("example")[0];
+  console.log(list);
+  list.getElementsByClassName("child")[0].innerHTML = "Milk";
 }
+

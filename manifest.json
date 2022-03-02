@@ -4,13 +4,24 @@
   "name": "Barcode Scanner",
   "description": "barcode scanner that supports scanning from webcam",
   "permissions": [
+    "activeTab",
+    "contextMenus",
     "storage",
-    "contextMenus"
-   ],
-   "background": {
+    "scripting",
+    "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*/*"],
+      "js": ["content-script.js"]
+    }
+  ],
+  "host_permissions": [
+   " https://*/*"
+  ],
+  "background": {
     "service_worker": "worker.js"
   },
-  "homepage_url": "https://add0n.com/qrcode-reader.html",
   "icons": {
     "16": "data/icons/barcode-scanner.png",
     "19": "data/icons/barcode-scanner.png",
@@ -23,5 +34,7 @@
     "256": "data/icons/barcode-scanner.png",
     "512": "data/icons/barcode-scanner.png"
   },
-  "action": {}
+  "action": {
+    "default_popup": "index.html"
+  }
 }

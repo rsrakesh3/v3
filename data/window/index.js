@@ -31,14 +31,52 @@ const prefs = {
 
 const hashCode = s => Array.from(s).reduce((s, c) => Math.imul(31, s) + c.charCodeAt(0) | 0, 0);
 
+function changeBackgroundColor() {
+  document.getElementById("searchInput").value = "Hi"
+}
 qrcode.on('detect', e => {
-  qrcode.draw(e, canvas);
+  alert(e.data);
+  document.dispatchEvent(new CustomEvent('yourCustomEvent', { data: e.data }));
+//   var code = "console.log('This code will execute as a content script');";
+// chrome.tabs.executeScript({code: code});
+processThis(e.data, callbackFunction);
   if (tools.stream && tools.stream.active) {
     tools.vidoe.off();
   }
-  // add to update history
-  tools.append(e);
 });
+
+document.addEventListener('yourCustomEvent', function (e) {
+  var data = e;
+  console.log('received', data);
+});
+
+function processThis(productNum, callback) {
+  console.log("Product Number: " + productNum);
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.runtime.sendMessage({Message: "hello", product:productNum}, function (response) {
+      // doSomething(response.farewell);
+      if (!chrome.runtime.lastError) {
+        console.log("Success")
+    } else {
+      console.log("No Response")
+    }
+    });
+  });
+  // chrome.tab.executeScript(document.getElementById("searchInput").value = message);
+  
+  if (typeof callback == "function")
+      callback();
+}
+
+function doSomething(selectedText) {
+  console.log(selectedText);
+}
+
+function callbackFunction() {
+
+  console.log(
+    "Running callback function next");
+}
 
 // focus
 document.addEventListener('keydown', e => tabsView.keypress(e));
@@ -77,7 +115,7 @@ const tools = {
         video.style.visibility = 'hidden';
         qrcode.clean(canvas);
       }
-      catch (e) {}
+      catch (e) { }
     }
   },
   async detect(source, width, height) {
@@ -104,7 +142,7 @@ const tools = {
       content.innerHTML = urlify(e.data);
       div.appendChild(symbol);
       div.appendChild(content);
-      
+
       if (prefs.save) {
         prefs.history.unshift({
           data: e.data,
@@ -127,48 +165,18 @@ const tools = {
   }
 };
 
+
 // tab change
-tabsView.addEventListener('tabs-view::change', ({detail}) => {
+tabsView.addEventListener('tabs-view::change', ({ detail }) => {
   if (detail.dataset.tab === 'scan' && document.getElementById('auto-start').checked) {
     tools.vidoe.on();
   }
-  if (detail.dataset.tab === 'results' && tools.stream && tools.stream.active) {
-    tools.vidoe.off();
-  }
+  // if (detail.dataset.tab === 'results' && tools.stream && tools.stream.active) {
+  //   tools.vidoe.off();
+  // }
 });
 
-// on image
-// {
-//   const next = file => {
-//     const img = new Image();
-//     img.onload = function() {
-//       notify('', false);
-//       const ctx = canvas.getContext('2d');
-//       canvas.width = img.naturalWidth;
-//       canvas.height = img.naturalHeight;
-//       ctx.fillStyle = '#fff';
-//       ctx.fillRect(0, 0, canvas.width, canvas.height);
-//       ctx.drawImage(img, 0, 0);
-//       tools.detect(img, img.naturalWidth, img.naturalHeight);
-//     };
-//     img.src = URL.createObjectURL(file);
-//   };
-//   document.querySelector('input[type=file]').addEventListener('change', e => {
-//     tools.vidoe.off();
 
-//     next(e.target.files[0]);
-//     e.target.value = '';
-//   });
-//   document.addEventListener('dragover', e => e.preventDefault());
-//   document.addEventListener('drop', e => {
-//     e.preventDefault();
-//     for (const file of e.dataTransfer.items) {
-//       if (file.kind === 'file' && file.type.startsWith('image/')) {
-//         return next(file.getAsFile());
-//       }
-//     }
-//   });
-// }
 
 // init
 chrome.storage.local.get(prefs, ps => {
@@ -212,6 +220,13 @@ document.getElementById('toggle').addEventListener('click', () => {
     tools.vidoe.on();
   }
 });
+
+function getCurrentTab() {
+  let queryOptions = { active: true, currentWindow: true };
+  let [tab] =  chrome.tabs.query(queryOptions);
+  return tab;
+}
+
 // clean
 // document.getElementById('clean').addEventListener('click', () => {
 //   if (window.confirm('Delete the entire history?')) {
