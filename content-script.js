@@ -5,7 +5,6 @@ chrome.runtime.onMessage.addListener(
             console.log(request.greeting);
         chrome.tabs.executeScript({
             code: 'alert("Hi")'
-            // document.getElementById("searchInput").value = message
           });
         }
         return false;  

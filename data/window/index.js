@@ -37,9 +37,9 @@ function changeBackgroundColor() {
 qrcode.on('detect', e => {
   alert(e.data);
   document.dispatchEvent(new CustomEvent('yourCustomEvent', { data: e.data }));
-//   var code = "console.log('This code will execute as a content script');";
-// chrome.tabs.executeScript({code: code});
-processThis(e.data, callbackFunction);
+  //   var code = "console.log('This code will execute as a content script');";
+  // chrome.tabs.executeScript({code: code});
+  processThis(e.data, callbackFunction);
   if (tools.stream && tools.stream.active) {
     tools.vidoe.off();
   }
@@ -52,20 +52,17 @@ document.addEventListener('yourCustomEvent', function (e) {
 
 function processThis(productNum, callback) {
   console.log("Product Number: " + productNum);
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.runtime.sendMessage({Message: "hello", product:productNum}, function (response) {
-      // doSomething(response.farewell);
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.runtime.sendMessage({ Message: "hello", product: productNum }, function (response) {
       if (!chrome.runtime.lastError) {
         console.log("Success")
-    } else {
-      console.log("No Response")
-    }
+      } else {
+        console.log("No Response")
+      }
     });
   });
-  // chrome.tab.executeScript(document.getElementById("searchInput").value = message);
-  
   if (typeof callback == "function")
-      callback();
+    callback();
 }
 
 function doSomething(selectedText) {
@@ -78,9 +75,7 @@ function callbackFunction() {
     "Running callback function next");
 }
 
-// focus
 document.addEventListener('keydown', e => tabsView.keypress(e));
-// tools
 const tools = {
   vidoe: {
     on() {
@@ -223,15 +218,6 @@ document.getElementById('toggle').addEventListener('click', () => {
 
 function getCurrentTab() {
   let queryOptions = { active: true, currentWindow: true };
-  let [tab] =  chrome.tabs.query(queryOptions);
+  let [tab] = chrome.tabs.query(queryOptions);
   return tab;
 }
-
-// clean
-// document.getElementById('clean').addEventListener('click', () => {
-//   if (window.confirm('Delete the entire history?')) {
-//     chrome.storage.local.remove('history', () => {
-//       history.textContent = '';
-//     });
-//   }
-// });

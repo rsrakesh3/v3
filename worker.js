@@ -88,8 +88,11 @@ chrome.runtime.onMessage.addListener(
 function displayProduct(productNum) {
   alert(productNum);
   navigator.clipboard.writeText(productNum);
-  const list = document.getElementsByClassName("example")[0];
-  console.log(list);
-  list.getElementsByClassName("child")[0].innerHTML = "Milk";
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const list = document.getElementsByClassName("example")[0];
+    list.getElementsByClassName("child")[0].innerHTML = "Milk";
+});
+
+  
 }
 
