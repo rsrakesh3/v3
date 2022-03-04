@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "version": "1.0.0",
-  "name": "Barcode Scanner",
-  "description": "barcode scanner that supports scanning from webcam",
+  "name": "Barcode Scanner MV3",
+  "description": "barcode scanner",
   "permissions": [
     "activeTab",
     "contextMenus",
