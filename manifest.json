@@ -10,14 +10,8 @@
     "scripting",
     "tabs"
   ],
-  "content_scripts": [
-    {
-      "matches": ["https://*/*"],
-      "js": ["content-script.js"]
-    }
-  ],
   "host_permissions": [
-   " https://*/*"
+   "https://*/*"
   ],
   "background": {
     "service_worker": "worker.js"

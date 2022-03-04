@@ -61,15 +61,6 @@ chrome.storage.onChanged.addListener(prefs => {
 });
 
 chrome.runtime.onMessage.addListener(
-  function (message, callback) {
-    if (message == "changeColor") {
-      chrome.tabs.executeScript({
-        code: 'document.body.style.backgroundColor="orange"'
-      });
-    }
-  });
-
-chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       if (request.Message === "hello") {
@@ -86,13 +77,9 @@ chrome.runtime.onMessage.addListener(
 );
 
 function displayProduct(productNum) {
-  alert(productNum);
-  navigator.clipboard.writeText(productNum);
-  window.addEventListener('DOMContentLoaded', (event) => {
-    const list = document.getElementsByClassName("example")[0];
-    list.getElementsByClassName("child")[0].innerHTML = "Milk";
-});
-
-  
+  setTimeout(async() => console.log(
+    await window.navigator.clipboard.writeText(productNum)), 3000)
+  document.getElementById("input").value = productNum;
 }
+
 

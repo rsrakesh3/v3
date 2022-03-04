@@ -31,26 +31,14 @@ const prefs = {
 
 const hashCode = s => Array.from(s).reduce((s, c) => Math.imul(31, s) + c.charCodeAt(0) | 0, 0);
 
-function changeBackgroundColor() {
-  document.getElementById("searchInput").value = "Hi"
-}
 qrcode.on('detect', e => {
-  alert(e.data);
-  document.dispatchEvent(new CustomEvent('yourCustomEvent', { data: e.data }));
-  //   var code = "console.log('This code will execute as a content script');";
-  // chrome.tabs.executeScript({code: code});
-  processThis(e.data, callbackFunction);
+  processThis(e.data);
   if (tools.stream && tools.stream.active) {
     tools.vidoe.off();
   }
 });
 
-document.addEventListener('yourCustomEvent', function (e) {
-  var data = e;
-  console.log('received', data);
-});
-
-function processThis(productNum, callback) {
+function processThis(productNum) {
   console.log("Product Number: " + productNum);
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     chrome.runtime.sendMessage({ Message: "hello", product: productNum }, function (response) {
@@ -61,18 +49,6 @@ function processThis(productNum, callback) {
       }
     });
   });
-  if (typeof callback == "function")
-    callback();
-}
-
-function doSomething(selectedText) {
-  console.log(selectedText);
-}
-
-function callbackFunction() {
-
-  console.log(
-    "Running callback function next");
 }
 
 document.addEventListener('keydown', e => tabsView.keypress(e));
@@ -117,47 +93,6 @@ const tools = {
     await qrcode.ready();
     qrcode.detect(source, width, height);
   },
-  append(e, focus = true) {
-    const id = 'q-' + hashCode(e.data);
-    const div = document.getElementById(id);
-    if (div) {
-      history.insertAdjacentElement('afterbegin', div);
-    }
-    else {
-      const urlify = content => {
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return content.replace(urlRegex, '<a href="$1" target=_blank>$1</a>');
-      };
-
-      const div = document.createElement('div');
-      div.id = id;
-      const symbol = document.createElement('span');
-      symbol.textContent = 'Type: ' + e.symbol;
-      const content = document.createElement('pre');
-      content.innerHTML = urlify(e.data);
-      div.appendChild(symbol);
-      div.appendChild(content);
-
-      if (prefs.save) {
-        prefs.history.unshift({
-          data: e.data,
-          symbol: e.symbol
-        });
-        // alert(data);
-        prefs.history = prefs.history.slice(0, prefs.max);
-        chrome.storage.local.set({
-          history: prefs.history
-        });
-      }
-    }
-    if (focus) {
-      tabsView.keypress({
-        metaKey: true,
-        code: 'Digit2',
-        key: 2
-      });
-    }
-  }
 };
 
 
@@ -166,12 +101,7 @@ tabsView.addEventListener('tabs-view::change', ({ detail }) => {
   if (detail.dataset.tab === 'scan' && document.getElementById('auto-start').checked) {
     tools.vidoe.on();
   }
-  // if (detail.dataset.tab === 'results' && tools.stream && tools.stream.active) {
-  //   tools.vidoe.off();
-  // }
 });
-
-
 
 // init
 chrome.storage.local.get(prefs, ps => {
@@ -216,8 +146,3 @@ document.getElementById('toggle').addEventListener('click', () => {
   }
 });
 
-function getCurrentTab() {
-  let queryOptions = { active: true, currentWindow: true };
-  let [tab] = chrome.tabs.query(queryOptions);
-  return tab;
-}
