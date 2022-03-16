@@ -91,9 +91,33 @@ chrome.runtime.onMessage.addListener(
 );
 
 function displayProduct(productNum) {
-  setTimeout(async() => console.log(
-    await window.navigator.clipboard.writeText(productNum)), 3000)
-  document.getElementById("input").value = productNum;
+  var baseElement = document.getElementById('framedadmin');
+  var contWindow = baseElement ? baseElement.contentWindow : null;
+
+  var giftRegistryElement = contWindow != null && contWindow.document.getElementsByName("frm_actions")[0];
+  var stockBufferElement = contWindow != null && contWindow.document.getElementById('oSearch');
+  var productElement = contWindow != null && contWindow.document.getElementsByName("name")[0];
+  var inventoryAdjustmentElement = document.getElementById("P80_BARCODE");
+
+  // working, gift registry
+  if (baseElement != null && contWindow != null && giftRegistryElement != null) {
+    document.getElementById('framedadmin').contentWindow.document.getElementsByName("frm_actions")[0].contentWindow.document.getElementById("product").value = product;
+  }
+
+  //working, stock buffer managment
+  if (baseElement != null && contWindow != null && stockBufferElement != null) {
+    document.getElementById('framedadmin').contentWindow.document.getElementById('oSearch').value = product;
+  }
+
+  //working, product page
+  if (baseElement != null && contWindow != null && productElement != null) {
+    document.getElementById('framedadmin').contentWindow.document.getElementsByName("name")[0].value = product;
+  }
+
+  //working SIM Inventory adjustment entry
+  if (inventoryAdjustmentElement != null) {
+    document.getElementById("P80_BARCODE").value = product;
+  }
 }
 
 
