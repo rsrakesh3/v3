@@ -35,6 +35,20 @@ const startup = () => chrome.storage.local.get({
   mode: 'popup'
 }, prefs => {
   chrome.contextMenus.create({
+    title: 'Open in Window',
+    id: 'window',
+    contexts: ['browser_action'],
+    type: 'radio',
+    checked: prefs.mode === 'window'
+  });
+  chrome.contextMenus.create({
+    title: 'Open in Tab',
+    id: 'tab',
+    contexts: ['browser_action'],
+    type: 'radio',
+    checked: prefs.mode === 'tab'
+  });
+  chrome.contextMenus.create({
     title: 'Open in Popup',
     id: 'popup',
     contexts: ['action'],
